@@ -59,6 +59,7 @@
                 delay: 10,
                 time: 600
             });
+            
         });
     </script>
     <!-- END Java Script for this page -->

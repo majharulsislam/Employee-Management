@@ -284,6 +284,9 @@
                                 <li>
                                     <a href="attendence.php">Present Sheet</a>
                                 </li>
+                                <li>
+                                    <a href="presentRecord.php">Present Record</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="submenu">

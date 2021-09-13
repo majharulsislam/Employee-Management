@@ -16,7 +16,7 @@
             }
 
            
-            $today_date = date('d-m-Y');
+            $today_date = date("Y-m-d");
             $stm = $pdo->prepare('SELECT * FROM attendence WHERE emp_id=? AND today_date=?');
             $stm->execute(array($emp_id,$today_date));
             $exists = $stm->rowCount();
@@ -27,7 +27,20 @@
             else{
                 date_default_timezone_set('Asia/Dhaka');
                 $present_time = date('h:i:s a', time());
-                $today_date = date('d-m-Y');
+                $today_date = date("Y-m-d");
+
+                if($attend_status == 'p'){
+                    if($present_time == '08:30:00 am'){
+                    $attend_status = 'p';
+                    }
+                    else{
+                        $attend_status = 'L';
+                    }
+                }
+                else{
+                    $attend_status = $attend_status;
+                }
+                
 
                 $statement = $pdo->prepare('INSERT INTO attendence(emp_id,attend_status,present_time,today_date) VALUES (?,?,?,?)');
                 $statement->execute(array($emp_id,$attend_status,$present_time,$today_date));
@@ -123,20 +136,19 @@
 
 <!-- Attendence Sheet -->
 <div class="row">
-	<div class="col-md-12">
+    <div class="col-md-8">
         <div class="table-responsive">
            <table class="table table-bordered bg-light">
               <thead>
                 <tr>
-                  <th scope="col" colspan="31">Date: <?php echo date('F - Y') ?></th>
+                  <th scope="col" colspan="3">Date: <?php echo date('d F - Y') ?></th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                     <th>Name</th>
-                    <?php for($i = 1;$i <= date('t');$i++) : ?>
-                    <td><?php echo $i; ?></td>
-                    <?php endfor; ?>
+                    <th>Present</th>
+                    <th>Time</th>
                 </tr>
 
                 <?php 
@@ -146,35 +158,33 @@
                     foreach ($result as $row) :
                 ?>
                 <tr>
-                    <td><?php echo  $row['emp_fullname']; ?></td>
-
-                    <?php 
-                        $statement = $pdo->prepare('SELECT * FROM attendence WHERE emp_id=?');
-                        $statement->execute(array($row['id']));
-                        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-                        foreach ($result as $attend) :
-                    ?>
+                    <td><?php echo $row['emp_fullname']; ?></td>
+                    
                     <td>
                         <?php
-                            if($attend['attend_status'] == 'p') {
-                                if($attend['present_time'] < '08:01:00 am' AND $attend['present_time'] < '12:00:00 pm') {
-                                    echo '<span style="color:green;font-weight:500">P</span>';
+                            $todayDate = date("Y-m-d");
+                            $statement = $pdo->prepare('SELECT * FROM attendence WHERE emp_id=? AND today_date=?');
+                            $statement->execute(array($row['id'],$todayDate));
+                            $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+                            foreach ($result as $attend) { 
+                                if($attend['attend_status'] == 'p') {
+                                    echo '<span style="color:green;font-weight:500">Present</span>';
+                                }
+                                elseif($attend['attend_status'] == 'L') {
+                                    echo '<span style="color:red;font-weight:500">Late</span>';
                                 }
                                 else{
-                                    echo '<span style="color:red;font-weight:500">L</span>';
+                                    if($attend['attend_status'] == 'a'){
+                                        echo '<span style="color:red;font-weight:500">Absent</span>';
+                                    }
+                                    else{
+                                        echo '<span style="color:blue;font-weight:500">Holiday</span>';
+                                    }
                                 }
-                            }
-                            else{
-                                if($attend['attend_status'] == 'a'){
-                                    echo '<span style="color:red;font-weight:500">A</span>';
-                                }
-                                else{
-                                    echo '<span style="color:blue;font-weight:500">H</span>';
-                                }
-                            }
-                        ?>  
+                            
+                        ?>
                     </td>
-                    <?php endforeach; ?>
+                    <td><?php echo $attend['present_time']; } ?></td>
                 </tr>
                 <?php endforeach; ?>    
               </tbody>
@@ -182,5 +192,6 @@
         </div>
     </div>
 </div>
+
 
 <?php require_once('footer.php'); ?>

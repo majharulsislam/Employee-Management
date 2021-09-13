@@ -235,7 +235,7 @@
                         <div class="form-group">
                             <label for="select_month">Select Month <span class="text-danger">*</span></label>
                             <select class="form-control" name="select_month" id="select_month">
-                              <option value="">- Select year -</option>
+                              <option value="">- Select month -</option>
                               <?php for($j=1;$j <= 12;$j++) : ?>
                               <option value="<?php echo $j; ?>"><?php echo $j; ?></option>
                             <?php endfor; ?>
